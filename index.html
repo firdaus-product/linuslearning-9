@@ -1,216 +1,308 @@
 <!DOCTYPE html>
-<html lang="ms-MY">
+<html lang="ms-MY" class="overflow-hidden overscroll-none">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pemulihan: Konsep Tambah</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pemulihan: Konsep Tambah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <style>
-    /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
-    body { 
-        font-family: 'Fredoka', sans-serif; 
-        background-color: #f0fdf4; 
-        background-image: radial-gradient(#86efac 2px, transparent 2px); 
-        background-size: 30px 30px; 
-    }
-    
-    .game-card { 
-        background: white; 
-        border: 4px solid #475569; 
-        box-shadow: 8px 8px 0px #00000020; 
-        border-radius: 1.5rem; 
-        min-height: 600px; 
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        overflow: hidden; 
-    }
-    
-    /* Buttons */
-    .btn-3d { 
-        transition: all 0.1s; 
-        border-bottom-width: 6px; 
-        border-color: rgba(0,0,0,0.2); 
-        transform: translateY(0); 
-        cursor: pointer; 
-        display: inline-block; 
-    }
-    .btn-3d:active:not(:disabled) { transform: translateY(4px); border-bottom-width: 2px; box-shadow: none; }
-    .btn-3d:disabled { opacity: 0.6; cursor: not-allowed; border-bottom-width: 6px; filter: grayscale(100%); }
+    <style>
+        /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#86efac 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
 
-    /* Animations */
-    .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-    
-    /* Specific for Activities */
-    .draggable { cursor: grab; touch-action: none; }
-    .draggable:active { cursor: grabbing; opacity: 0.6; transform: scale(1.05); }
-    
-    /* Custom Jar Style */
-    .jar-container {
-        width: 200px;
-        height: 240px;
-        border: 4px solid #475569;
-        border-radius: 0 0 60px 60px;
-        background: rgba(255, 255, 255, 0.5);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-wrap: wrap;
-        align-content: flex-end;
-        justify-content: center;
-        padding: 10px;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-    }
-    .jar-lid {
-        width: 210px;
-        height: 20px;
-        background: #475569;
-        border-radius: 10px;
-        margin-bottom: -5px;
-        z-index: 10;
-    }
+        .game-card {
+            background: white;
+            border: 4px solid #475569;
+            box-shadow: 8px 8px 0px #00000020;
+            border-radius: 1.5rem;
+            /* min-height: 600px; REMOVED */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    .marble {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: 3px solid rgba(0,0,0,0.2);
-        box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    }
-    .marble:hover { transform: scale(1.1); }
+        /* Buttons */
+        .btn-3d {
+            transition: all 0.1s;
+            border-bottom-width: 6px;
+            border-color: rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            cursor: pointer;
+            display: inline-block;
+        }
 
-    /* Number Line Marker */
-    .marker { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; border: 3px solid #cbd5e1; background: white; color: #475569; }
-    .marker:active { transform: scale(0.95); }
-    .marker.active { background: #3b82f6; color: white; border-color: #1d4ed8; transform: scale(1.2); box-shadow: 0 4px 0 #1e3a8a; border-bottom-width: 4px;}
-    .marker.highlight { background: #fbbf24; border-color: #d97706; transform: scale(1.1); }
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+            box-shadow: none;
+        }
 
-    /* Color Palette */
-    .color-swatch { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; }
-    .color-swatch.selected { border-color: #1e293b; transform: scale(1.2); box-shadow: 0 0 0 4px rgba(0,0,0,0.1); }
-    
-  </style>
+        .btn-3d:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-bottom-width: 6px;
+            filter: grayscale(100%);
+        }
+
+        /* Animations */
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Specific for Activities */
+        .draggable {
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+            opacity: 0.6;
+            transform: scale(1.05);
+        }
+
+        /* Custom Jar Style */
+        .jar-container {
+            width: 150px;
+            height: 180px;
+            border: 4px solid #475569;
+            border-radius: 0 0 40px 40px;
+            background: rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-end;
+            justify-content: center;
+            padding: 5px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .jar-lid {
+            width: 160px;
+            height: 15px;
+            background: #475569;
+            border-radius: 8px;
+            margin-bottom: -4px;
+            z-index: 10;
+        }
+
+        .marble {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .marble:hover {
+            transform: scale(1.1);
+        }
+
+        /* Number Line Marker */
+        .marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid #cbd5e1;
+            background: white;
+            color: #475569;
+        }
+
+        .marker:active {
+            transform: scale(0.95);
+        }
+
+        .marker.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+            transform: scale(1.2);
+            box-shadow: 0 4px 0 #1e3a8a;
+            border-bottom-width: 4px;
+        }
+
+        .marker.highlight {
+            background: #fbbf24;
+            border-color: #d97706;
+            transform: scale(1.1);
+        }
+
+        /* Color Palette */
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-swatch.selected {
+            border-color: #1e293b;
+            transform: scale(1.2);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-10">
 
-  <div class="fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
-    <div class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl animate-bounce">➕</span>
-        <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Konsep Tambah</span>
-      </div>
-      <button id="speak-btn" onclick="speakInfo()" class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+<body class="h-screen w-screen overflow-hidden text-slate-800 flex flex-col overscroll-none">
+
+    <div class="flex-none p-4 z-50 pointer-events-none w-full">
+        <div
+            class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl animate-bounce">➕</span>
+                <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Konsep Tambah</span>
+            </div>
+            <button id="speak-btn" onclick="speakInfo()"
+                class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+        </div>
     </div>
-  </div>
-  <div class="h-24"></div>
 
-  <div class="max-w-6xl mx-auto p-4">
-    
-    <div class="game-card p-8 mb-8">
-        <div id="activity-content" class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
-            <div class="py-10 text-center">
-                <div class="text-8xl mb-6 animate-pulse">🎯</div>
-                <h2 class="text-5xl font-bold text-emerald-600 mb-4">Jom Belajar Tambah!</h2>
-                <p class="text-2xl text-slate-500 mb-8 font-semibold">Belajar konsep tambah dan "lebih satu".</p>
-                <div class="text-4xl animate-bounce">👇</div>
+    <div class="flex-1 w-full max-w-6xl mx-auto p-2 flex flex-col min-h-0">
+
+        <div class="game-card p-2 mb-2 flex-1 w-full">
+            <div id="activity-content"
+                class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
+                <div class="py-10 text-center">
+                    <div class="text-8xl mb-6 animate-pulse">🎯</div>
+                    <h2 class="text-5xl font-bold text-emerald-600 mb-4">Jom Belajar Tambah!</h2>
+                    <p class="text-2xl text-slate-500 mb-8 font-semibold">Belajar konsep tambah dan "lebih satu".</p>
+                    <div class="text-4xl animate-bounce">👇</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-none bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-2 border-2 border-white">
+            <h3 class="text-lg font-bold text-slate-700 mb-1 text-center">🎮 Pilih Aktiviti</h3>
+
+            <div class="grid grid-cols-5 gap-2 mb-2">
+                <button onclick="loadActivity(1)"
+                    class="btn-3d bg-blue-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🫙
+                    Guli</button>
+                <button onclick="loadActivity(2)"
+                    class="btn-3d bg-green-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">📏
+                    Garis</button>
+                <button onclick="loadActivity(3)"
+                    class="btn-3d bg-purple-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🎨
+                    Warna</button>
+                <button onclick="loadActivity(4)"
+                    class="btn-3d bg-orange-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔢
+                    Susun</button>
+                <button onclick="loadActivity(5)"
+                    class="btn-3d bg-pink-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔗
+                    Padan</button>
+            </div>
+
+            <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-2">
+                <button onclick="clearActivity()"
+                    class="btn-3d bg-slate-400 text-white font-bold py-1 px-4 rounded-full text-base">🏠 Menu</button>
+                <button onclick="nextActivity()"
+                    class="btn-3d bg-indigo-500 text-white font-bold py-1 px-6 rounded-full text-lg">Seterusnya
+                    ➡️</button>
             </div>
         </div>
     </div>
 
-    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border-2 border-white">
-      <h3 class="text-2xl font-bold text-slate-700 mb-4 text-center">🎮 Pilih Aktiviti</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <button onclick="loadActivity(1)" class="btn-3d bg-blue-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🫙 Guli Balang</button>
-        <button onclick="loadActivity(2)" class="btn-3d bg-green-500 text-white font-bold py-4 px-2 rounded-xl text-lg">📏 Garis Nombor</button>
-        <button onclick="loadActivity(3)" class="btn-3d bg-purple-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🎨 Warna Tambah</button>
-        <button onclick="loadActivity(4)" class="btn-3d bg-orange-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔢 Susun Nombor</button>
-        <button onclick="loadActivity(5)" class="btn-3d bg-pink-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔗 Padanan</button>
-      </div>
+    <script>
+        /* --- STANDARD HELPERS --- */
+        let currentActivity = 0;
+        let ttsEnabled = false;
+        let currentInfo = "Pilih aktiviti untuk mula belajar!";
 
-      <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-6">
-        <button onclick="clearActivity()" class="btn-3d bg-slate-400 text-white font-bold py-2 px-6 rounded-full text-lg">🏠 Menu</button>
-        <button onclick="nextActivity()" class="btn-3d bg-indigo-500 text-white font-bold py-2 px-8 rounded-full text-xl">Seterusnya ➡️</button>
-      </div>
-    </div>
-  </div>
+        function speak(text) {
+            if (!ttsEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.95; u.pitch = 1.05;
+            const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms'));
+            if (ms) u.voice = ms;
+            window.speechSynthesis.speak(u);
+        }
 
-  <script>
-    /* --- STANDARD HELPERS --- */
-    let currentActivity = 0;
-    let ttsEnabled = false;
-    let currentInfo = "Pilih aktiviti untuk mula belajar!";
-    
-    function speak(text) { 
-        if (!ttsEnabled || !('speechSynthesis' in window)) return; 
-        window.speechSynthesis.cancel(); 
-        const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.95; u.pitch = 1.05; 
-        const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms')); 
-        if (ms) u.voice = ms; 
-        window.speechSynthesis.speak(u); 
-    }
-    
-    function setInfo(text) { 
-        currentInfo = text; const infoEl = document.getElementById('info-text'); 
-        infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200); 
-    }
-    
-    function speakInfo() { 
-        if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); } 
-        speak(currentInfo); 
-    }
+        function setInfo(text) {
+            currentInfo = text; const infoEl = document.getElementById('info-text');
+            infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200);
+        }
 
-    function triggerWin() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
+        function speakInfo() {
+            if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); }
+            speak(currentInfo);
+        }
 
-    /* --- ROUTER --- */
-    function loadActivity(n) {
-      currentActivity = n;
-      const content = document.getElementById('activity-content');
-      content.style.opacity = 0;
-      setTimeout(() => {
-          if (n === 1) setupAct1(content);
-          else if (n === 2) setupAct2(content);
-          else if (n === 3) setupAct3(content);
-          else if (n === 4) setupAct4(content);
-          else if (n === 5) setupAct5(content);
-          content.style.opacity = 1; 
-      }, 200);
-    }
+        function triggerWin() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
-    function clearActivity() {
-        currentActivity = 0;
-        document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🎯</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Jom Belajar Tambah!</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih aktiviti di bawah.</p></div>`;
-        setInfo("Pilih aktiviti di bawah.");
-    }
-    function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
+        /* --- ROUTER --- */
+        function loadActivity(n) {
+            currentActivity = n;
+            const content = document.getElementById('activity-content');
+            content.style.opacity = 0;
+            setTimeout(() => {
+                if (n === 1) setupAct1(content);
+                else if (n === 2) setupAct2(content);
+                else if (n === 3) setupAct3(content);
+                else if (n === 4) setupAct4(content);
+                else if (n === 5) setupAct5(content);
+                content.style.opacity = 1;
+            }, 200);
+        }
+
+        function clearActivity() {
+            currentActivity = 0;
+            document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🎯</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Jom Belajar Tambah!</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih aktiviti di bawah.</p></div>`;
+            setInfo("Pilih aktiviti di bawah.");
+        }
+        function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
 
 
-    /* =========================================
-       LOGIK AKTIVITI (Diadaptasi untuk Layout Master)
-       ========================================= */
+        /* =========================================
+           LOGIK AKTIVITI (Diadaptasi untuk Layout Master)
+           ========================================= */
 
-    /* --- 1. Guli dalam Balang --- */
-    function setupAct1(content) {
-        setInfo("Seret guli ke dalam balang untuk mengira.");
-        content.innerHTML = `
+        /* --- 1. Guli dalam Balang --- */
+        function setupAct1(content) {
+            setInfo("Seret guli ke dalam balang untuk mengira.");
+            content.innerHTML = `
             <div class="w-full max-w-4xl flex flex-col items-center">
-                <h3 class="text-3xl font-bold text-blue-600 mb-2">🫙 Guli dalam Balang</h3>
-                <p class="text-slate-500 mb-8 font-bold">Tambah guli ke dalam balang.</p>
+                <h3 class="text-2xl font-bold text-blue-600 mb-2">🫙 Guli dalam Balang</h3>
+                <p class="text-slate-500 mb-4 font-bold text-sm">Tambah guli ke dalam balang.</p>
                 
-                <div class="flex flex-col md:flex-row items-end gap-12">
-                    <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-6 w-64 min-h-[200px] flex flex-wrap content-start justify-center gap-3 shadow-inner">
-                         <div class="w-full text-center text-slate-400 font-bold mb-2 text-sm">AMBIL SINI</div>
-                         ${['red','blue','green','yellow','purple'].map(c => `
+                <div class="flex flex-col md:flex-row items-end gap-6">
+                    <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-2 w-48 min-h-[150px] flex flex-wrap content-start justify-center gap-2 shadow-inner">
+                         <div class="w-full text-center text-slate-400 font-bold mb-1 text-xs">AMBIL SINI</div>
+                         ${['red', 'blue', 'green', 'yellow', 'purple'].map(c => `
                             <div draggable="true" ondragstart="dragMarble(event, '${c}')" class="marble bg-${c}-400 cursor-grab active:cursor-grabbing transform hover:scale-110"></div>
                          `).join('')}
-                         ${['orange','teal','pink'].map(c => `
+                         ${['orange', 'teal', 'pink'].map(c => `
                             <div draggable="true" ondragstart="dragMarble(event, '${c}')" class="marble bg-${c}-400 cursor-grab active:cursor-grabbing transform hover:scale-110"></div>
                          `).join('')}
                     </div>
@@ -221,243 +313,243 @@
                              <div class="marble bg-red-400 pop-in"></div>
                              <div class="marble bg-blue-400 pop-in"></div>
                         </div>
-                        <div class="mt-4 bg-blue-100 px-6 py-2 rounded-xl border-2 border-blue-300">
-                            <span class="text-slate-600 font-bold">Jumlah: </span>
-                            <span id="marble-count" class="text-3xl font-bold text-blue-600">2</span>
+                        <div class="mt-2 bg-blue-100 px-4 py-1 rounded-xl border-2 border-blue-300">
+                            <span class="text-slate-600 font-bold text-sm">Jumlah: </span>
+                            <span id="marble-count" class="text-2xl font-bold text-blue-600">2</span>
                         </div>
                     </div>
                 </div>
-                <button onclick="loadActivity(1)" class="mt-8 text-sm text-slate-400 underline">Mula Semula</button>
+                <button onclick="loadActivity(1)" class="mt-4 text-xs text-slate-400 underline">Mula Semula</button>
             </div>
         `;
-    }
-    window.dragMarble = function(e, color) {
-        e.dataTransfer.setData('color', color);
-    }
-    window.allowDrop = function(e) { e.preventDefault(); }
-    window.dropMarble = function(e) {
-        e.preventDefault();
-        const color = e.dataTransfer.getData('color');
-        const jar = document.getElementById('jar-zone');
-        
-        const newMarble = document.createElement('div');
-        newMarble.className = `marble bg-${color}-400 pop-in`;
-        jar.appendChild(newMarble);
-        
-        updateCount();
-    }
-    function updateCount() {
-        const count = document.getElementById('jar-zone').children.length;
-        document.getElementById('marble-count').innerText = count;
-        setInfo(`Sekarang ada ${count} biji guli.`);
-        speak(`${count}`);
-        triggerWin();
-    }
+        }
+        window.dragMarble = function (e, color) {
+            e.dataTransfer.setData('color', color);
+        }
+        window.allowDrop = function (e) { e.preventDefault(); }
+        window.dropMarble = function (e) {
+            e.preventDefault();
+            const color = e.dataTransfer.getData('color');
+            const jar = document.getElementById('jar-zone');
+
+            const newMarble = document.createElement('div');
+            newMarble.className = `marble bg-${color}-400 pop-in`;
+            jar.appendChild(newMarble);
+
+            updateCount();
+        }
+        function updateCount() {
+            const count = document.getElementById('jar-zone').children.length;
+            document.getElementById('marble-count').innerText = count;
+            setInfo(`Sekarang ada ${count} biji guli.`);
+            speak(`${count}`);
+            triggerWin();
+        }
 
 
-    /* --- 2. Garis Nombor (Lebih Satu) --- */
-    function setupAct2(content) {
-        setInfo("Klik nombor. Lihat nombor 'lebih satu' (sebelah kanan).");
-        let markers = '';
-        for(let i=1; i<=10; i++) {
-            markers += `
+        /* --- 2. Garis Nombor (Lebih Satu) --- */
+        function setupAct2(content) {
+            setInfo("Klik nombor. Lihat nombor 'lebih satu' (sebelah kanan).");
+            let markers = '';
+            for (let i = 1; i <= 10; i++) {
+                markers += `
                 <div class="flex flex-col items-center relative" style="width: 9%;">
                     <div id="nm-${i}" onclick="clickLineNum(${i})" class="marker">${i}</div>
                     <div class="h-4 w-1 bg-slate-300 mt-1"></div>
                 </div>
             `;
-        }
+            }
 
-        content.innerHTML = `
+            content.innerHTML = `
             <div class="w-full max-w-5xl text-center">
                 <h3 class="text-3xl font-bold text-green-600 mb-2">📏 Garis Nombor</h3>
-                <p class="text-xl text-slate-500 mb-10 font-semibold">Konsep: "Lebih satu" ialah nombor sebelah kanan.</p>
+                <p class="text-lg text-slate-500 mb-4 font-semibold">Konsep: "Lebih satu" ialah nombor sebelah kanan.</p>
                 
-                <div class="bg-green-50 p-8 rounded-3xl border-2 border-green-200 mb-8 overflow-x-auto shadow-inner">
-                    <div class="flex justify-between items-end min-w-[600px] relative">
+                <div class="bg-green-50 p-4 rounded-3xl border-2 border-green-200 mb-4 overflow-x-auto shadow-inner">
+                    <div class="flex justify-between items-end min-w-[500px] relative">
                         <div class="absolute bottom-2 left-4 right-4 h-1 bg-slate-300 z-0"></div>
                         ${markers}
                     </div>
                 </div>
                 
-                <div id="nl-explainer" class="bg-white border-2 border-slate-200 p-6 rounded-2xl min-h-[100px] flex items-center justify-center">
-                    <p class="text-2xl font-bold text-slate-400">Klik mana-mana nombor di atas.</p>
+                <div id="nl-explainer" class="bg-white border-2 border-slate-200 p-2 rounded-2xl min-h-[60px] flex items-center justify-center">
+                    <p class="text-lg font-bold text-slate-400">Klik mana-mana nombor di atas.</p>
                 </div>
             </div>
         `;
-    }
-    window.clickLineNum = function(n) {
-        // Reset visuals
-        document.querySelectorAll('.marker').forEach(m => {
-            m.classList.remove('active', 'highlight');
-        });
-
-        // Activate clicked
-        const clicked = document.getElementById(`nm-${n}`);
-        clicked.classList.add('active');
-
-        const next = n + 1;
-        let msg = "";
-
-        if(next <= 10) {
-            const nextEl = document.getElementById(`nm-${next}`);
-            setTimeout(() => nextEl.classList.add('highlight'), 300); // Delay slightly for effect
-            msg = `<span class="text-slate-600">Lebih satu daripada <b class="text-blue-600 text-3xl">${n}</b> ialah <b class="text-green-600 text-4xl">${next}</b>.</span>`;
-            speak(`Lebih satu daripada ${n} ialah ${next}.`);
-        } else {
-            msg = `<span class="text-slate-600">10 adalah nombor terakhir di sini.</span>`;
-            speak("Sepuluh adalah nombor terakhir.");
         }
-        
-        document.getElementById('nl-explainer').innerHTML = msg;
-    }
+        window.clickLineNum = function (n) {
+            // Reset visuals
+            document.querySelectorAll('.marker').forEach(m => {
+                m.classList.remove('active', 'highlight');
+            });
+
+            // Activate clicked
+            const clicked = document.getElementById(`nm-${n}`);
+            clicked.classList.add('active');
+
+            const next = n + 1;
+            let msg = "";
+
+            if (next <= 10) {
+                const nextEl = document.getElementById(`nm-${next}`);
+                setTimeout(() => nextEl.classList.add('highlight'), 300); // Delay slightly for effect
+                msg = `<span class="text-slate-600">Lebih satu daripada <b class="text-blue-600 text-3xl">${n}</b> ialah <b class="text-green-600 text-4xl">${next}</b>.</span>`;
+                speak(`Lebih satu daripada ${n} ialah ${next}.`);
+            } else {
+                msg = `<span class="text-slate-600">10 adalah nombor terakhir di sini.</span>`;
+                speak("Sepuluh adalah nombor terakhir.");
+            }
+
+            document.getElementById('nl-explainer').innerHTML = msg;
+        }
 
 
-    /* --- 3. Warna Tambah --- */
-    let selectedColor = 'red';
-    let coloredCount = 0;
-    function setupAct3(content) {
-        selectedColor = 'red'; coloredCount = 0;
-        setInfo("Pilih warna, kemudian klik buah untuk warnakan.");
-        
-        content.innerHTML = `
+        /* --- 3. Warna Tambah --- */
+        let selectedColor = 'red';
+        let coloredCount = 0;
+        function setupAct3(content) {
+            selectedColor = 'red'; coloredCount = 0;
+            setInfo("Pilih warna, kemudian klik buah untuk warnakan.");
+
+            content.innerHTML = `
             <div class="w-full max-w-4xl text-center">
-                <h3 class="text-3xl font-bold text-purple-600 mb-6">🎨 Warna Tambah</h3>
+                <h3 class="text-3xl font-bold text-purple-600 mb-4">🎨 Warna Tambah</h3>
                 
-                <div class="flex justify-center gap-4 mb-8 bg-slate-100 p-4 rounded-full inline-flex border-2 border-slate-200">
-                    ${['red','blue','green','yellow','purple'].map(c => `
-                        <div onclick="pickColor(this, '${c}')" class="color-swatch bg-${c}-400 ${c==='red'?'selected':''}"></div>
+                <div class="flex justify-center gap-4 mb-4 bg-slate-100 p-2 rounded-full inline-flex border-2 border-slate-200">
+                    ${['red', 'blue', 'green', 'yellow', 'purple'].map(c => `
+                        <div onclick="pickColor(this, '${c}')" class="color-swatch bg-${c}-400 ${c === 'red' ? 'selected' : ''}"></div>
                     `).join('')}
                 </div>
 
-                <div class="grid grid-cols-5 gap-4 justify-items-center mb-8">
-                    ${['🍎','🍊','🍌','🍇','🍓'].map(emoji => `
-                        <button onclick="paintItem(this, '${emoji}')" class="btn-3d w-20 h-20 bg-white border-slate-200 rounded-2xl text-4xl flex items-center justify-center grayscale opacity-50 hover:opacity-70">
+                <div class="grid grid-cols-5 gap-2 justify-items-center mb-4">
+                    ${['🍎', '🍊', '🍌', '🍇', '🍓'].map(emoji => `
+                        <button onclick="paintItem(this, '${emoji}')" class="btn-3d w-16 h-16 bg-white border-slate-200 rounded-2xl text-4xl flex items-center justify-center grayscale opacity-50 hover:opacity-70">
                             ${emoji}
                         </button>
                     `).join('')}
                 </div>
 
-                <div class="text-2xl font-bold text-slate-700">
-                    Sudah warna: <span id="paint-count" class="text-purple-600 text-4xl">0</span>
+                <div class="text-xl font-bold text-slate-700">
+                    Sudah warna: <span id="paint-count" class="text-purple-600 text-3xl">0</span>
                 </div>
             </div>
         `;
-    }
-    window.pickColor = function(el, color) {
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedColor = color;
-        speak(`Warna ${color === 'red' ? 'Merah' : color === 'blue' ? 'Biru' : color === 'green' ? 'Hijau' : color === 'yellow' ? 'Kuning' : 'Ungu'}`);
-    }
-    window.paintItem = function(btn, emoji) {
-        if(btn.classList.contains('colored')) return; // Prevent double count
-        
-        btn.classList.remove('grayscale', 'opacity-50', 'hover:opacity-70', 'bg-white');
-        btn.classList.add('colored', `bg-${selectedColor}-400`, 'text-white', 'border-transparent');
-        btn.classList.add('pop-in');
-        
-        coloredCount++;
-        document.getElementById('paint-count').innerText = coloredCount;
-        speak(`${coloredCount}`);
-        
-        if(coloredCount === 5) {
-            setInfo("Tahniah! Semua sudah diwarna.");
-            triggerWin();
         }
-    }
+        window.pickColor = function (el, color) {
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedColor = color;
+            speak(`Warna ${color === 'red' ? 'Merah' : color === 'blue' ? 'Biru' : color === 'green' ? 'Hijau' : color === 'yellow' ? 'Kuning' : 'Ungu'}`);
+        }
+        window.paintItem = function (btn, emoji) {
+            if (btn.classList.contains('colored')) return; // Prevent double count
+
+            btn.classList.remove('grayscale', 'opacity-50', 'hover:opacity-70', 'bg-white');
+            btn.classList.add('colored', `bg-${selectedColor}-400`, 'text-white', 'border-transparent');
+            btn.classList.add('pop-in');
+
+            coloredCount++;
+            document.getElementById('paint-count').innerText = coloredCount;
+            speak(`${coloredCount}`);
+
+            if (coloredCount === 5) {
+                setInfo("Tahniah! Semua sudah diwarna.");
+                triggerWin();
+            }
+        }
 
 
-    /* --- 4. Susun Nombor --- */
-    let seqTarget = 1;
-    let seqHistory = [];
-    function setupAct4(content) {
-        seqTarget = 1; seqHistory = [];
-        setInfo("Klik nombor ikut urutan: 1, 2, 3, 4, 5.");
-        
-        const nums = [3, 1, 5, 2, 4]; // Scrambled
-        
-        content.innerHTML = `
+        /* --- 4. Susun Nombor --- */
+        let seqTarget = 1;
+        let seqHistory = [];
+        function setupAct4(content) {
+            seqTarget = 1; seqHistory = [];
+            setInfo("Klik nombor ikut urutan: 1, 2, 3, 4, 5.");
+
+            const nums = [3, 1, 5, 2, 4]; // Scrambled
+
+            content.innerHTML = `
             <div class="w-full max-w-4xl text-center">
                 <h3 class="text-3xl font-bold text-orange-600 mb-2">🔢 Susun Nombor</h3>
-                <p class="text-slate-500 mb-8">Cari nombor <b id="target-num" class="text-orange-600 text-2xl">1</b></p>
+                <p class="text-slate-500 mb-4">Cari nombor <b id="target-num" class="text-orange-600 text-2xl">1</b></p>
                 
-                <div class="flex flex-wrap justify-center gap-6 mb-8">
+                <div class="flex flex-wrap justify-center gap-4 mb-6">
                     ${nums.map(n => `
-                        <button onclick="checkSeq(${n}, this)" class="btn-3d bg-white text-slate-700 border-slate-300 w-24 h-24 rounded-2xl text-5xl font-bold hover:bg-orange-50">
+                        <button onclick="checkSeq(${n}, this)" class="btn-3d bg-white text-slate-700 border-slate-300 w-20 h-20 rounded-2xl text-4xl font-bold hover:bg-orange-50">
                             ${n}
                         </button>
                     `).join('')}
                 </div>
                 
-                <div class="bg-slate-800 text-white p-4 rounded-xl font-mono text-2xl tracking-widest min-h-[70px] flex items-center justify-center shadow-lg">
+                <div class="bg-slate-800 text-white p-2 rounded-xl font-mono text-xl tracking-widest min-h-[50px] flex items-center justify-center shadow-lg">
                     [ <span id="seq-display" class="text-orange-400 mx-2"></span> ]
                 </div>
             </div>
         `;
-    }
-    window.checkSeq = function(n, btn) {
-        if(n === seqTarget) {
-            // Correct
-            btn.classList.remove('bg-white', 'text-slate-700');
-            btn.classList.add('bg-orange-500', 'text-white', 'border-orange-700');
-            btn.disabled = true;
-            
-            seqHistory.push(n);
-            document.getElementById('seq-display').innerText = seqHistory.join(' - ');
-            
-            speak(`${n}`);
-            
-            if(seqTarget === 5) {
-                setInfo("Hebat! Susunan lengkap.");
-                triggerWin();
-                document.getElementById('target-num').innerText = "Selesai!";
-            } else {
-                seqTarget++;
-                document.getElementById('target-num').innerText = seqTarget;
-                setInfo(`Sekarang cari nombor ${seqTarget}.`);
-            }
-        } else {
-            // Wrong
-            btn.classList.add('bg-red-200');
-            speak("Salah. Cuba lagi.");
-            setTimeout(() => btn.classList.remove('bg-red-200'), 500);
         }
-    }
+        window.checkSeq = function (n, btn) {
+            if (n === seqTarget) {
+                // Correct
+                btn.classList.remove('bg-white', 'text-slate-700');
+                btn.classList.add('bg-orange-500', 'text-white', 'border-orange-700');
+                btn.disabled = true;
+
+                seqHistory.push(n);
+                document.getElementById('seq-display').innerText = seqHistory.join(' - ');
+
+                speak(`${n}`);
+
+                if (seqTarget === 5) {
+                    setInfo("Hebat! Susunan lengkap.");
+                    triggerWin();
+                    document.getElementById('target-num').innerText = "Selesai!";
+                } else {
+                    seqTarget++;
+                    document.getElementById('target-num').innerText = seqTarget;
+                    setInfo(`Sekarang cari nombor ${seqTarget}.`);
+                }
+            } else {
+                // Wrong
+                btn.classList.add('bg-red-200');
+                speak("Salah. Cuba lagi.");
+                setTimeout(() => btn.classList.remove('bg-red-200'), 500);
+            }
+        }
 
 
-    /* --- 5. Padanan Jumlah --- */
-    let matchSelection = null;
-    let matchedPairs = 0;
-    function setupAct5(content) {
-        matchSelection = null; matchedPairs = 0;
-        setInfo("Pilih Kumpulan Objek, kemudian pilih Nombor yang betul.");
-        
-        const groups = [
-            {id:1, icon:'🍎', count:1, color:'blue'},
-            {id:2, icon:'🍊', count:2, color:'green'},
-            {id:3, icon:'⭐', count:3, color:'yellow'},
-            {id:4, icon:'🎈', count:4, color:'purple'}
-        ];
-        
-        content.innerHTML = `
+        /* --- 5. Padanan Jumlah --- */
+        let matchSelection = null;
+        let matchedPairs = 0;
+        function setupAct5(content) {
+            matchSelection = null; matchedPairs = 0;
+            setInfo("Pilih Kumpulan Objek, kemudian pilih Nombor yang betul.");
+
+            const groups = [
+                { id: 1, icon: '🍎', count: 1, color: 'blue' },
+                { id: 2, icon: '🍊', count: 2, color: 'green' },
+                { id: 3, icon: '⭐', count: 3, color: 'yellow' },
+                { id: 4, icon: '🎈', count: 4, color: 'purple' }
+            ];
+
+            content.innerHTML = `
             <div class="w-full max-w-5xl text-center">
-                <h3 class="text-3xl font-bold text-pink-600 mb-6">🔗 Padanan Jumlah</h3>
+                <h3 class="text-3xl font-bold text-pink-600 mb-4">🔗 Padanan Jumlah</h3>
                 
-                <div class="grid grid-cols-2 gap-12">
-                    <div class="flex flex-col gap-4">
-                        <h4 class="font-bold text-slate-400 mb-2">Kumpulan</h4>
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-bold text-slate-400 mb-1">Kumpulan</h4>
                         ${groups.map(g => `
-                            <button onclick="selGroup(${g.count}, this)" class="group-btn btn-3d bg-${g.color}-100 border-${g.color}-300 text-4xl py-6 rounded-xl">
+                            <button onclick="selGroup(${g.count}, this)" class="group-btn btn-3d bg-${g.color}-100 border-${g.color}-300 text-3xl py-4 rounded-xl">
                                 ${Array(g.count).fill(g.icon).join(' ')}
                             </button>
                         `).join('')}
                     </div>
                     
-                    <div class="flex flex-col gap-4">
-                        <h4 class="font-bold text-slate-400 mb-2">Nombor</h4>
-                        ${[4,1,3,2].map(n => `
-                            <button onclick="selNum(${n}, this)" class="num-btn btn-3d bg-white border-slate-300 text-4xl py-6 rounded-xl font-bold text-slate-600 hover:bg-slate-50">
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-bold text-slate-400 mb-1">Nombor</h4>
+                        ${[4, 1, 3, 2].map(n => `
+                            <button onclick="selNum(${n}, this)" class="num-btn btn-3d bg-white border-slate-300 text-3xl py-4 rounded-xl font-bold text-slate-600 hover:bg-slate-50">
                                 ${n}
                             </button>
                         `).join('')}
@@ -465,48 +557,49 @@
                 </div>
             </div>
         `;
-    }
-    window.selGroup = function(val, btn) {
-        // Reset previous selection visual
-        document.querySelectorAll('.group-btn').forEach(b => {
-            if(!b.disabled) b.classList.remove('ring-4', 'ring-pink-400');
-        });
-        
-        btn.classList.add('ring-4', 'ring-pink-400');
-        matchSelection = { val: val, btn: btn };
-        speak(`Ada ${val}. Cari nombor ${val}.`);
-    }
-    window.selNum = function(val, btn) {
-        if(!matchSelection) {
-            setInfo("Pilih kumpulan objek (kiri) dahulu.");
-            return;
         }
-        
-        if(matchSelection.val === val) {
-            // Correct
-            btn.classList.remove('bg-white', 'text-slate-600');
-            btn.classList.add('bg-green-500', 'text-white', 'border-green-700');
-            
-            matchSelection.btn.classList.remove('ring-4', 'ring-pink-400');
-            matchSelection.btn.classList.add('bg-green-500', 'text-white', 'opacity-50');
-            
-            // Disable interaction
-            btn.disabled = true;
-            matchSelection.btn.disabled = true;
-            
-            speak("Betul!");
-            matchedPairs++;
-            if(matchedPairs === 4) triggerWin();
-            
-            matchSelection = null;
-        } else {
-            // Wrong
-            btn.classList.add('bg-red-200', 'shake');
-            setTimeout(() => btn.classList.remove('bg-red-200', 'shake'), 500);
-            speak("Salah.");
-        }
-    }
+        window.selGroup = function (val, btn) {
+            // Reset previous selection visual
+            document.querySelectorAll('.group-btn').forEach(b => {
+                if (!b.disabled) b.classList.remove('ring-4', 'ring-pink-400');
+            });
 
-  </script>
+            btn.classList.add('ring-4', 'ring-pink-400');
+            matchSelection = { val: val, btn: btn };
+            speak(`Ada ${val}. Cari nombor ${val}.`);
+        }
+        window.selNum = function (val, btn) {
+            if (!matchSelection) {
+                setInfo("Pilih kumpulan objek (kiri) dahulu.");
+                return;
+            }
+
+            if (matchSelection.val === val) {
+                // Correct
+                btn.classList.remove('bg-white', 'text-slate-600');
+                btn.classList.add('bg-green-500', 'text-white', 'border-green-700');
+
+                matchSelection.btn.classList.remove('ring-4', 'ring-pink-400');
+                matchSelection.btn.classList.add('bg-green-500', 'text-white', 'opacity-50');
+
+                // Disable interaction
+                btn.disabled = true;
+                matchSelection.btn.disabled = true;
+
+                speak("Betul!");
+                matchedPairs++;
+                if (matchedPairs === 4) triggerWin();
+
+                matchSelection = null;
+            } else {
+                // Wrong
+                btn.classList.add('bg-red-200', 'shake');
+                setTimeout(() => btn.classList.remove('bg-red-200', 'shake'), 500);
+                speak("Salah.");
+            }
+        }
+
+    </script>
 </body>
+
 </html>
